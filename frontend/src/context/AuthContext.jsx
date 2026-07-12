@@ -3,7 +3,11 @@ import axios from 'axios';
 
 const AuthContext = createContext(null);
 
-const API_BASE_URL = 'http://localhost:5000/api';
+// In production (Vercel), frontend and backend share the same domain.
+// In local dev, Vite proxy or direct localhost works.
+const API_BASE_URL = import.meta.env.MODE === 'production' 
+  ? '/api' 
+  : 'http://localhost:5000/api';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
