@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "userId": "f7fc329f-1bd6-4f94-b382-92b96a8358e4",
+    "email": "newtest@example.com",
+    "password": "$2b$10$56nfw9BiSPlhA2fCZ0UwgOGYIZBjPaFFmCDd9UQd11LZ6cuTMpdgq",
+    "role": "restaurant",
+    "name": "Test Restaurant",
+    "phone": "1234567890",
+    "address": "123 Test St",
+    "createdAt": "2026-09-14T17:13:34.858Z"
+  },
+  {
+    "userId": "0f85a8a7-a258-42b8-afd7-033fc111732c",
+    "email": "saka.cse2024@rmd.ac.in",
+    "password": "$2b$10$3CqpSPLLsIQ74L1tE4zWhuPnHmjcnOrs4E58FSFaPs6S73UiRCkTW",
+    "role": "restaurant",
+    "name": "ATHARSH S",
+    "phone": "1112223333",
+    "address": "123,qwer",
+    "createdAt": "2026-09-14T17:19:23.053Z"
+  }
+]

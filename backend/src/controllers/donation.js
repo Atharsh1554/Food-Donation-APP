@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID: uuidv4 } = require('crypto');
 const db = require('../config/db');
 
 // Calculate distance (Haversine Formula) - for location/distance filters

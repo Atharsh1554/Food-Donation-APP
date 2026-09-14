@@ -10,7 +10,14 @@ let docClient = null;
 
 if (USE_AWS) {
   try {
-    const client = new DynamoDBClient({ region: REGION });
+    // On Vercel/serverless: use explicit credentials from env vars.
+    // Locally: if no explicit keys, fall back to AWS_PROFILE / default credential chain.
+    const clientConfig = { region: REGION };
+    if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+      const { fromEnv } = require('@aws-sdk/credential-providers');
+      clientConfig.credentials = fromEnv();
+    }
+    const client = new DynamoDBClient(clientConfig);
     docClient = DynamoDBDocumentClient.from(client);
     console.log('AWS DynamoDB Client Initialized');
   } catch (error) {
@@ -23,14 +30,26 @@ const LOCAL_DB_DIR = path.join(__dirname, '../../data');
 const USERS_FILE = path.join(LOCAL_DB_DIR, 'users.json');
 const DONATIONS_FILE = path.join(LOCAL_DB_DIR, 'donations.json');
 
-// Ensure local DB exists
-if (!fs.existsSync(LOCAL_DB_DIR)) {
-  fs.mkdirSync(LOCAL_DB_DIR, { recursive: true });
-}
-if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, JSON.stringify([]));
-if (!fs.existsSync(DONATIONS_FILE)) fs.writeFileSync(DONATIONS_FILE, JSON.stringify([]));
+const IS_VERCEL = !!process.env.VERCEL;
 
-const readLocalFile = (filePath) => {
+// In-memory store for Vercel (read-only filesystem, no AWS)
+// NOTE: Data is lost on each cold start — use USE_AWS=true for persistence on Vercel
+const memoryStore = {
+  users: [],
+  donations: [],
+};
+
+// Ensure local DB files exist (only on non-Vercel environments)
+if (!IS_VERCEL) {
+  if (!fs.existsSync(LOCAL_DB_DIR)) {
+    fs.mkdirSync(LOCAL_DB_DIR, { recursive: true });
+  }
+  if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, JSON.stringify([]));
+  if (!fs.existsSync(DONATIONS_FILE)) fs.writeFileSync(DONATIONS_FILE, JSON.stringify([]));
+}
+
+const readLocalFile = (filePath, storeKey) => {
+  if (IS_VERCEL) return [...memoryStore[storeKey]];
   try {
     const data = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(data);
@@ -39,7 +58,11 @@ const readLocalFile = (filePath) => {
   }
 };
 
-const writeLocalFile = (filePath, data) => {
+const writeLocalFile = (filePath, storeKey, data) => {
+  if (IS_VERCEL) {
+    memoryStore[storeKey] = data;
+    return;
+  }
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 };
 
@@ -55,9 +78,9 @@ const db = {
         await docClient.send(command);
         return user;
       } else {
-        const users = readLocalFile(USERS_FILE);
+        const users = readLocalFile(USERS_FILE, 'users');
         users.push(user);
-        writeLocalFile(USERS_FILE, users);
+        writeLocalFile(USERS_FILE, 'users', users);
         return user;
       }
     },
@@ -72,7 +95,7 @@ const db = {
         const response = await docClient.send(command);
         return response.Items && response.Items.length > 0 ? response.Items[0] : null;
       } else {
-        const users = readLocalFile(USERS_FILE);
+        const users = readLocalFile(USERS_FILE, 'users');
         return users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
       }
     },
@@ -86,7 +109,7 @@ const db = {
         const response = await docClient.send(command);
         return response.Item || null;
       } else {
-        const users = readLocalFile(USERS_FILE);
+        const users = readLocalFile(USERS_FILE, 'users');
         return users.find(u => u.userId === userId) || null;
       }
     }
@@ -103,9 +126,9 @@ const db = {
         await docClient.send(command);
         return donation;
       } else {
-        const donations = readLocalFile(DONATIONS_FILE);
+        const donations = readLocalFile(DONATIONS_FILE, 'donations');
         donations.push(donation);
-        writeLocalFile(DONATIONS_FILE, donations);
+        writeLocalFile(DONATIONS_FILE, 'donations', donations);
         return donation;
       }
     },
@@ -119,7 +142,7 @@ const db = {
         const response = await docClient.send(command);
         return response.Item || null;
       } else {
-        const donations = readLocalFile(DONATIONS_FILE);
+        const donations = readLocalFile(DONATIONS_FILE, 'donations');
         return donations.find(d => d.donationId === donationId) || null;
       }
     },
@@ -132,7 +155,7 @@ const db = {
         const response = await docClient.send(command);
         return response.Items || [];
       } else {
-        return readLocalFile(DONATIONS_FILE);
+        return readLocalFile(DONATIONS_FILE, 'donations');
       }
     },
 
@@ -162,11 +185,11 @@ const db = {
         const response = await docClient.send(command);
         return response.Attributes;
       } else {
-        const donations = readLocalFile(DONATIONS_FILE);
+        const donations = readLocalFile(DONATIONS_FILE, 'donations');
         const index = donations.findIndex(d => d.donationId === donationId);
         if (index !== -1) {
           donations[index] = { ...donations[index], ...updates };
-          writeLocalFile(DONATIONS_FILE, donations);
+          writeLocalFile(DONATIONS_FILE, 'donations', donations);
           return donations[index];
         }
         return null;
@@ -182,10 +205,10 @@ const db = {
         await docClient.send(command);
         return true;
       } else {
-        let donations = readLocalFile(DONATIONS_FILE);
+        let donations = readLocalFile(DONATIONS_FILE, 'donations');
         const initialLength = donations.length;
         donations = donations.filter(d => d.donationId !== donationId);
-        writeLocalFile(DONATIONS_FILE, donations);
+        writeLocalFile(DONATIONS_FILE, 'donations', donations);
         return donations.length < initialLength;
       }
     }

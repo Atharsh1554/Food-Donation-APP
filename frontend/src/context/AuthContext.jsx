@@ -3,11 +3,10 @@ import axios from 'axios';
 
 const AuthContext = createContext(null);
 
-// In production (Vercel), frontend and backend share the same domain.
-// In local dev, Vite proxy or direct localhost works.
-const API_BASE_URL = import.meta.env.MODE === 'production' 
-  ? '/api' 
-  : 'http://localhost:5000/api';
+// Use /api for all environments.
+// In development, Vite proxy forwards /api → http://localhost:5000/api (see vite.config.js)
+// In production (Vercel), the rewrite rule in vercel.json handles /api routing.
+const API_BASE_URL = '/api';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

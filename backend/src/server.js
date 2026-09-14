@@ -33,8 +33,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: err.message || 'Internal Server Error' });
 });
 
-// Start Server (only if run directly, not in lambda)
-if (process.env.NODE_ENV !== 'lambda') {
+// Start Server (only if run directly, not in lambda or vercel)
+if (process.env.NODE_ENV !== 'lambda' && !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`FoodShare Server is running on http://localhost:${PORT}`);
     console.log(`Local Uploads Directory: ${path.join(__dirname, '../public/uploads')}`);

@@ -11,7 +11,12 @@ let s3Client = null;
 
 if (USE_AWS) {
   try {
-    s3Client = new S3Client({ region: REGION });
+    const clientConfig = { region: REGION };
+    if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+      const { fromEnv } = require('@aws-sdk/credential-providers');
+      clientConfig.credentials = fromEnv();
+    }
+    s3Client = new S3Client(clientConfig);
     console.log('AWS S3 Client Initialized');
   } catch (error) {
     console.error('Failed to initialize AWS S3 Client:', error);
@@ -20,7 +25,7 @@ if (USE_AWS) {
 
 // Local mock storage paths
 const LOCAL_UPLOADS_DIR = path.join(__dirname, '../../public/uploads');
-if (!fs.existsSync(LOCAL_UPLOADS_DIR)) {
+if (!process.env.VERCEL && !fs.existsSync(LOCAL_UPLOADS_DIR)) {
   fs.mkdirSync(LOCAL_UPLOADS_DIR, { recursive: true });
 }
 
