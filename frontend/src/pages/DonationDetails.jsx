@@ -92,7 +92,7 @@ const DonationDetails = () => {
           <div className="glass-card rounded-3xl overflow-hidden border border-white/50 dark:border-white/5 shadow-lg bg-slate-100 dark:bg-slate-900 aspect-video relative">
             {donation.imageUrl ? (
               <img 
-                src={donation.imageUrl.startsWith('/') ? `http://localhost:5000${donation.imageUrl}` : donation.imageUrl} 
+                src={donation.imageUrl} 
                 alt={donation.foodName}
                 className="w-full h-full object-cover"
               />

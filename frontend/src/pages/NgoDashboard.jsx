@@ -292,7 +292,7 @@ const NgoDashboard = () => {
                   <div className="relative h-44 bg-slate-100 dark:bg-slate-900">
                     {donation.imageUrl ? (
                       <img 
-                        src={donation.imageUrl.startsWith('/') ? `http://localhost:5000${donation.imageUrl}` : donation.imageUrl} 
+                        src={donation.imageUrl} 
                         alt={donation.foodName}
                         className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
@@ -387,7 +387,7 @@ const NgoDashboard = () => {
                     <div className="h-16 w-16 rounded-xl bg-slate-100 dark:bg-slate-800 shrink-0 overflow-hidden">
                       {donation.imageUrl ? (
                         <img 
-                          src={donation.imageUrl.startsWith('/') ? `http://localhost:5000${donation.imageUrl}` : donation.imageUrl} 
+                          src={donation.imageUrl} 
                           alt={donation.foodName}
                           className="h-full w-full object-cover"
                         />

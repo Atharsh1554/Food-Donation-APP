@@ -83,8 +83,6 @@ const RestaurantDashboard = () => {
 
       // Step 2: Upload image file directly
       if (mode === 'aws') {
-        // Use native fetch — NOT api/axios — because S3 presigned URLs
-        // must not receive the Authorization header from our axios interceptor
         const s3Response = await fetch(uploadUrl, {
           method: 'PUT',
           headers: { 'Content-Type': file.type },
@@ -93,20 +91,22 @@ const RestaurantDashboard = () => {
         if (!s3Response.ok) {
           throw new Error(`S3 upload failed with status ${s3Response.status}`);
         }
+        return imageUrl;
       } else {
-        // Local mode upload
-        const localForm = new FormData();
-        localForm.append('file', file);
-        const uploadRes = await api.post(uploadUrl, localForm, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+        // Fallback to Data URL for client upload persistence
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(file);
         });
-        return uploadRes.data.imageUrl;
       }
-      return imageUrl;
     } catch (error) {
-      console.error('Image upload failed:', error);
-      showNotification('Image upload failed, submitting without image', 'warning');
-      return '';
+      console.error('Image upload failed, using Data URL:', error);
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result || imagePreview);
+        reader.readAsDataURL(file);
+      });
     } finally {
       setIsUploadingImage(false);
     }
@@ -293,7 +293,7 @@ const RestaurantDashboard = () => {
               <div className="relative h-44 bg-slate-100 dark:bg-slate-900">
                 {donation.imageUrl ? (
                   <img 
-                    src={donation.imageUrl.startsWith('/') ? `http://localhost:5000${donation.imageUrl}` : donation.imageUrl} 
+                    src={donation.imageUrl} 
                     alt={donation.foodName}
                     className="h-full w-full object-cover"
                   />
