@@ -90,17 +90,21 @@ const DonationDetails = () => {
           
           {/* Main Photo Card */}
           <div className="glass-card rounded-3xl overflow-hidden border border-white/50 dark:border-white/5 shadow-lg bg-slate-100 dark:bg-slate-900 aspect-video relative">
-            {donation.imageUrl ? (
+            {donation.imageUrl && (
               <img 
                 src={donation.imageUrl} 
                 alt={donation.foodName}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  const fallback = e.target.parentElement.querySelector('.img-fallback');
+                  if (fallback) fallback.style.display = 'flex';
+                }}
               />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-slate-400">
-                <Image className="h-16 w-16 stroke-[1.5]" />
-              </div>
             )}
+            <div className={`img-fallback h-full w-full items-center justify-center text-slate-400 ${donation.imageUrl ? 'hidden' : 'flex'}`}>
+              <Image className="h-16 w-16 stroke-[1.5]" />
+            </div>
             
             {/* Status Badges */}
             <span className={`absolute top-4 left-4 inline-flex items-center rounded-full px-3.5 py-1 text-xs font-bold shadow-sm backdrop-blur-md ${

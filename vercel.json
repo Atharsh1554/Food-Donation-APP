@@ -10,7 +10,10 @@
     },
     {
       "src": "backend/src/server.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["backend/public/uploads/**"]
+      }
     }
   ],
   "rewrites": [
@@ -19,7 +22,11 @@
       "destination": "/backend/src/server.js"
     },
     {
-      "source": "/((?!api/|assets/|.*\\..*).*)",
+      "source": "/uploads/(.*)",
+      "destination": "/backend/src/server.js"
+    },
+    {
+      "source": "/((?!api/|uploads/|assets/|.*\\..*).*)",
       "destination": "/frontend/"
     },
     {

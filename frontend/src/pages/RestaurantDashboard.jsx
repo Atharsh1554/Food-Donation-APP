@@ -291,17 +291,21 @@ const RestaurantDashboard = () => {
               className="glass-card rounded-2xl overflow-hidden border border-white/50 dark:border-white/5 hover:shadow-lg transition-all duration-200 flex flex-col"
             >
               <div className="relative h-44 bg-slate-100 dark:bg-slate-900">
-                {donation.imageUrl ? (
+                {donation.imageUrl && (
                   <img 
                     src={donation.imageUrl} 
                     alt={donation.foodName}
                     className="h-full w-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      const fallback = e.target.parentElement.querySelector('.img-fallback');
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
                   />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-slate-400">
-                    <Image className="h-10 w-10 stroke-[1.5]" />
-                  </div>
                 )}
+                <div className={`img-fallback h-full w-full items-center justify-center text-slate-400 ${donation.imageUrl ? 'hidden' : 'flex'}`}>
+                  <Image className="h-10 w-10 stroke-[1.5]" />
+                </div>
                 
                 {/* Status Badges */}
                 <span className={`absolute top-3 right-3 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm backdrop-blur-md ${

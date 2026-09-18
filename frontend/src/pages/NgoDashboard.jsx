@@ -290,17 +290,21 @@ const NgoDashboard = () => {
                 >
                   {/* Card Image */}
                   <div className="relative h-44 bg-slate-100 dark:bg-slate-900">
-                    {donation.imageUrl ? (
+                    {donation.imageUrl && (
                       <img 
                         src={donation.imageUrl} 
                         alt={donation.foodName}
                         className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          const fallback = e.target.parentElement.querySelector('.img-fallback');
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
                       />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-slate-400">
-                        <Image className="h-10 w-10 stroke-[1.5]" />
-                      </div>
                     )}
+                    <div className={`img-fallback h-full w-full items-center justify-center text-slate-400 ${donation.imageUrl ? 'hidden' : 'flex'}`}>
+                      <Image className="h-10 w-10 stroke-[1.5]" />
+                    </div>
                     
                     <span className="absolute top-3 left-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm px-2.5 py-0.5 rounded-full text-xs font-bold shadow-sm">
                       {donation.category}
@@ -385,17 +389,21 @@ const NgoDashboard = () => {
                 >
                   <div className="flex items-center gap-4 flex-1 min-w-0">
                     <div className="h-16 w-16 rounded-xl bg-slate-100 dark:bg-slate-800 shrink-0 overflow-hidden">
-                      {donation.imageUrl ? (
+                      {donation.imageUrl && (
                         <img 
                           src={donation.imageUrl} 
                           alt={donation.foodName}
                           className="h-full w-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            const fallback = e.target.parentElement.querySelector('.img-fallback');
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
                         />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-slate-400">
-                          <Image className="h-6 w-6 stroke-[1.5]" />
-                        </div>
                       )}
+                      <div className={`img-fallback h-full w-full items-center justify-center text-slate-400 ${donation.imageUrl ? 'hidden' : 'flex'}`}>
+                        <Image className="h-6 w-6 stroke-[1.5]" />
+                      </div>
                     </div>
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
