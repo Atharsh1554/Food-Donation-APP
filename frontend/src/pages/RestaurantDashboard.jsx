@@ -112,7 +112,29 @@ const RestaurantDashboard = () => {
     }
   };
 
+  const formatDateForInput = (dateVal) => {
+    if (!dateVal) return '';
+    if (typeof dateVal === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
+      return dateVal;
+    }
+    try {
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return '';
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    } catch (e) {
+      return '';
+    }
+  };
+
   const openAddForm = () => {
+    const todayStr = formatDateForInput(new Date());
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = formatDateForInput(tomorrow);
+
     setEditingDonation(null);
     setFormData({
       foodName: '',
@@ -120,8 +142,8 @@ const RestaurantDashboard = () => {
       description: '',
       quantity: '',
       pickupAddress: user?.address || '',
-      pickupTime: '',
-      expiryTime: '',
+      pickupTime: todayStr,
+      expiryTime: tomorrowStr,
       contactNumber: user?.phone || '',
       specialInstructions: '',
     });
@@ -133,14 +155,14 @@ const RestaurantDashboard = () => {
   const openEditForm = (donation) => {
     setEditingDonation(donation);
     setFormData({
-      foodName: donation.foodName,
-      category: donation.category,
-      description: donation.description,
-      quantity: donation.quantity,
-      pickupAddress: donation.pickupAddress,
-      pickupTime: donation.pickupTime ? donation.pickupTime.split('T')[0] : '',
-      expiryTime: donation.expiryTime ? donation.expiryTime.split('T')[0] : '',
-      contactNumber: donation.contactNumber,
+      foodName: donation.foodName || '',
+      category: donation.category || 'Vegetarian',
+      description: donation.description || '',
+      quantity: donation.quantity || '',
+      pickupAddress: donation.pickupAddress || '',
+      pickupTime: formatDateForInput(donation.pickupTime),
+      expiryTime: formatDateForInput(donation.expiryTime),
+      contactNumber: donation.contactNumber || '',
       specialInstructions: donation.specialInstructions || '',
     });
     setImageFile(null);
