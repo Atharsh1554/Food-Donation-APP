@@ -24,8 +24,6 @@ const RestaurantDashboard = () => {
     description: '',
     quantity: '',
     pickupAddress: '',
-    latitude: '',
-    longitude: '',
     pickupTime: '',
     expiryTime: '',
     contactNumber: '',
@@ -122,8 +120,6 @@ const RestaurantDashboard = () => {
       description: '',
       quantity: '',
       pickupAddress: user?.address || '',
-      latitude: '37.7749',
-      longitude: '-122.4194',
       pickupTime: '',
       expiryTime: '',
       contactNumber: user?.phone || '',
@@ -142,10 +138,8 @@ const RestaurantDashboard = () => {
       description: donation.description,
       quantity: donation.quantity,
       pickupAddress: donation.pickupAddress,
-      latitude: donation.latitude.toString(),
-      longitude: donation.longitude.toString(),
-      pickupTime: donation.pickupTime.split('T')[0] + 'T' + donation.pickupTime.split('T')[1].substring(0, 5),
-      expiryTime: donation.expiryTime.split('T')[0] + 'T' + donation.expiryTime.split('T')[1].substring(0, 5),
+      pickupTime: donation.pickupTime ? donation.pickupTime.split('T')[0] : '',
+      expiryTime: donation.expiryTime ? donation.expiryTime.split('T')[0] : '',
       contactNumber: donation.contactNumber,
       specialInstructions: donation.specialInstructions || '',
     });
@@ -167,8 +161,6 @@ const RestaurantDashboard = () => {
       const body = {
         ...formData,
         imageUrl: finalImageUrl,
-        latitude: parseFloat(formData.latitude) || 0,
-        longitude: parseFloat(formData.longitude) || 0,
       };
 
       if (editingDonation) {
@@ -321,7 +313,7 @@ const RestaurantDashboard = () => {
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Calendar className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                    <span>Expiry: {new Date(donation.expiryTime).toLocaleString()}</span>
+                    <span>Expiry Date: {new Date(donation.expiryTime).toLocaleDateString()}</span>
                   </div>
                 </div>
 
@@ -445,10 +437,10 @@ const RestaurantDashboard = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Preparation Time
+                    Prep Date
                   </label>
                   <input
-                    type="datetime-local"
+                    type="date"
                     name="pickupTime"
                     required
                     value={formData.pickupTime}
@@ -458,10 +450,10 @@ const RestaurantDashboard = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Expiry Time
+                    Expiry Date
                   </label>
                   <input
-                    type="datetime-local"
+                    type="date"
                     name="expiryTime"
                     required
                     value={formData.expiryTime}
@@ -471,7 +463,7 @@ const RestaurantDashboard = () => {
                 </div>
               </div>
 
-              {/* Address & GPS simulator */}
+              {/* Address */}
               <div>
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Pickup Address
@@ -484,35 +476,6 @@ const RestaurantDashboard = () => {
                   onChange={handleInputChange}
                   className="block w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 text-slate-900 dark:text-white text-sm"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Latitude (Google Maps Sim)
-                  </label>
-                  <input
-                    type="text"
-                    name="latitude"
-                    value={formData.latitude}
-                    onChange={handleInputChange}
-                    placeholder="37.7749"
-                    className="block w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 text-slate-900 dark:text-white text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Longitude (Google Maps Sim)
-                  </label>
-                  <input
-                    type="text"
-                    name="longitude"
-                    value={formData.longitude}
-                    onChange={handleInputChange}
-                    placeholder="-122.4194"
-                    className="block w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 text-slate-900 dark:text-white text-sm"
-                  />
-                </div>
               </div>
 
               <div>

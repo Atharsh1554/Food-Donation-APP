@@ -68,7 +68,8 @@ const DonationDetails = () => {
 
   if (!donation) return null;
 
-  const isExpired = new Date(donation.expiryTime) < new Date();
+  const expiryDateObj = donation.expiryTime ? (donation.expiryTime.includes('T') ? new Date(donation.expiryTime) : new Date(`${donation.expiryTime}T23:59:59`)) : new Date();
+  const isExpired = expiryDateObj < new Date();
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10">
@@ -206,18 +207,18 @@ const DonationDetails = () => {
             </div>
           </div>
 
-          {/* Time & Reservation Callouts */}
+          {/* Dates & Reservation Callouts */}
           <div className="glass-card rounded-3xl p-6 border border-white/50 dark:border-white/5 space-y-5">
-            <h3 className="font-bold text-slate-800 dark:text-white">Pickup Times</h3>
+            <h3 className="font-bold text-slate-800 dark:text-white">Donation Dates</h3>
 
             <div className="space-y-3 text-xs font-medium text-slate-600 dark:text-slate-400">
               <div className="flex justify-between items-center">
-                <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5 text-slate-400" /> Prep Time:</span>
-                <span className="font-bold text-slate-800 dark:text-slate-200">{new Date(donation.pickupTime).toLocaleString()}</span>
+                <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5 text-slate-400" /> Prep Date:</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200">{new Date(donation.pickupTime).toLocaleDateString()}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5 text-slate-400" /> Expiry Time:</span>
-                <span className="font-bold text-slate-800 dark:text-slate-200">{new Date(donation.expiryTime).toLocaleString()}</span>
+                <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5 text-slate-400" /> Expiry Date:</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200">{new Date(donation.expiryTime).toLocaleDateString()}</span>
               </div>
             </div>
 

@@ -11,21 +11,23 @@ const ExpiryTimer = ({ expiryTime }) => {
 
   useEffect(() => {
     const calculateTimeLeft = () => {
-      const difference = +new Date(expiryTime) - +new Date();
+      if (!expiryTime) return;
+      const target = expiryTime.includes('T') ? new Date(expiryTime) : new Date(`${expiryTime}T23:59:59`);
+      const difference = +target - +new Date();
       if (difference <= 0) {
         setTimeLeft('Expired');
         setIsExpired(true);
         return;
       }
 
-      const hours = Math.floor(difference / (1000 * 60 * 60));
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
       const minutes = Math.floor((difference / 1000 / 60) % 60);
-      const seconds = Math.floor((difference / 1000) % 60);
 
       let text = '';
-      if (hours > 0) text += `${hours}h `;
-      if (minutes > 0 || hours > 0) text += `${minutes}m `;
-      text += `${seconds}s`;
+      if (days > 0) text += `${days}d `;
+      if (hours > 0 || days > 0) text += `${hours}h `;
+      text += `${minutes}m`;
       setTimeLeft(text);
     };
 
@@ -337,7 +339,7 @@ const NgoDashboard = () => {
                         </div>
                         <div className="flex items-center gap-1.5">
                           <Calendar className="h-3.5 w-3.5 shrink-0" />
-                          <span>Pickup by: {new Date(donation.expiryTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                          <span>Expiry Date: {new Date(donation.expiryTime).toLocaleDateString()}</span>
                         </div>
                       </div>
 

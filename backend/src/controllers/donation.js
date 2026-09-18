@@ -136,9 +136,14 @@ const getDonations = async (req, res) => {
       );
     }
 
-    // Expiry check - Filter out expired donations if not collected/reserved (optional but nice)
+    // Expiry check - Filter out expired donations if not collected/reserved
     const now = new Date();
-    filtered = filtered.filter(d => d.status !== 'available' || new Date(d.expiryTime) > now);
+    filtered = filtered.filter(d => {
+      if (d.status !== 'available') return true;
+      if (!d.expiryTime) return true;
+      const expDate = d.expiryTime.includes('T') ? new Date(d.expiryTime) : new Date(`${d.expiryTime}T23:59:59`);
+      return expDate > now;
+    });
 
     // Sort by newest first
     filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -260,7 +265,10 @@ const reserveDonation = async (req, res) => {
     }
 
     // Check expiry
-    if (new Date(donation.expiryTime) < new Date()) {
+    const expDate = donation.expiryTime && donation.expiryTime.includes('T')
+      ? new Date(donation.expiryTime)
+      : new Date(`${donation.expiryTime}T23:59:59`);
+    if (expDate < new Date()) {
       return res.status(400).json({ message: 'Donation has expired' });
     }
 
